@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>未知 Unknown 遊戲</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f5f5f5;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(17, 40px);
+      grid-template-rows: repeat(17, 40px);
+      gap: 2px;
+      margin-bottom: 1rem;
+    }
+    .cell {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #000;
+      border: 1px solid #ccc;
+      position: relative;
+    }
+    .cell.empty {
+      visibility: hidden;
+    }
+    .controls {
+      margin-bottom: 1rem;
+    }
+    .playerCube {
+      font-size: 10px;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      background: rgba(255,255,255,0.7);
+      padding: 1px;
+    }
+    #turnInfo {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .null { background-color: transparent; border: none; }
+    .gray { background-color: #ccc; }
+    .white { background-color: #fff; }
+    .red { background-color: #EE4B2B; }
+    .green { background-color: #6f6; }
+    .blue { background-color: #0096FF; }
+    .yellow { background-color: #ff6; }
+    .purple { background-color: #c6f; }
+    .pink { background-color: #f6c; }
+    .lightblue { background-color: #6ff; }
+    .orange { background-color: #fa3; }
+    .black { background-color: #000; color: #fff; }
+  </style>
+</head>
+<body>
+  <h1>未知 Unknown 遊戲</h1>
+
+  <div class="controls">
+    <label>選擇玩家：</label>
+    <select id="playerSelect"></select>
+    <label>起始格子號碼：</label>
+    <input type="number" id="startNumber" min="1" max="104" style="width: 60px;">
+    <label>頂面顏色：</label>
+    <select id="startTop">
+      <option value="blue">藍</option>
+      <option value="red">紅</option>
+      <option value="green">綠</option>
+      <option value="yellow">黃</option>
+      <option value="purple">紫</option>
+      <option value="white">白</option>
+    </select>
+    <button onclick="setPlayerStart()">設定</button>
+  </div>
+
+  <div>
+    <button onclick="move('up')">上</button>
+    <button onclick="move('down')">下</button>
+    <button onclick="move('left')">左</button>
+    <button onclick="move('right')">右</button>
+  </div>
+
+  <div id="diceGuide" style="margin: 10px; padding: 10px; border: 1px solid #ccc; background: #fff; font-size: 14px;">
+  🎲 骰子六面顏色順序：<br>
+  <strong>上：</strong> 藍 (blue)，<strong>下：</strong> 白 (white)，<strong>左：</strong> 紅 (red)，
+  <strong>右：</strong> 紫 (purple)，<strong>前：</strong> 綠 (green)，<strong>後：</strong> 黃 (yellow)<br>
+  <em>初始頂面顏色會影響其餘五面的位置</em>
+  </div>
+
+  <div class="board" id="board"></div>
+  <div id="turnInfo"></div>
+
+  <script>
+    const boardData = [      [null, null, null, null, null, null, null, null, 4, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null, 20, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, 14, 24, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, 34, 35, 36, 8, null, null, null, null, null, null],
+      [null, null, null, null, null, 16, 52, 53, 54, 55, 56, null, null, null, null, null, null],
+      [null, null, null, null, null, 75, 76, 77, 78, 79, 80, 57, 9, null, null, null, null],
+      [null, null, null, 11, 51, 74, 93, 94, 95, 96, 81, 58, 37, null, null, null, null],
+      [null, null, null, 33, 50, 73, 92, 103, 104, 97, 82, 59, 38, 25, 10, null, null],
+      [3, 19, 23, 32, 49, 72, 91, 102, "G", 98, 83, 60, 39, 26, 21, 17, 2],
+      [null, null,6, 31, 48, 71, 90, 101, 100, 99, 84, 61, 40, 27, null, null, null],
+      [null, null, null,null, 47, 70, 89, 88, 87, 86, 85, 62, 41, 5, null, null, null],
+      [null, null, null, null,12, 69, 68, 67, 66, 65, 64, 63, null, null, null, null, null],
+      [null, null, null, null, null, 46, 45, 44, 43, 42, 7, null, null, null, null, null, null],
+      [null, null, null, null, null, 15, 30, 29, 28, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, 22, 13, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, 18, null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, 1, null, null, null, null, null, null, null, null, null]];
+    const colorMap = {  1: 'gray', 2: 'gray', 3: 'gray', 4: 'gray', 5: 'gray',
+  6: 'gray', 7: 'gray', 8: 'gray', 9: 'gray', 10: 'gray',
+  11: 'gray', 12: 'gray', 13: 'gray', 14: 'gray', 15: 'gray',
+  16: 'gray', 17: 'white', 18: 'yellow', 19: 'blue', 20: 'green',
+  21: 'yellow', 22: 'green', 23: 'red', 24: 'blue', 25: 'red',
+  26: 'blue', 27: 'red', 28: 'purple', 29: 'white', 30: 'purple',
+  31: 'purple', 32: 'blue', 33: 'white', 34: 'red', 35: 'green',
+  36: 'white', 37: 'purple', 38: 'yellow',39: 'white', 40: 'blue', 41: 'green',
+  42: 'white', 43: 'red', 44: 'blue', 45: 'blue', 46: 'yellow',
+  47: 'white', 48: 'yellow', 49: 'green', 50: 'blue', 51: 'purple',
+  52: 'yellow', 53: 'purple', 54: 'yellow', 55: 'red', 56: 'blue',
+  57: 'white', 58: 'green', 59: 'blue', 60: 'green', 61: 'white',
+  62: 'white', 63: 'purple', 64: 'green', 65: 'yellow', 66: 'purple',67: 'white',68: 'green',
+  69: 'red', 70: 'purple', 71: 'red', 72: 'white', 73: 'yellow',
+  74: 'red', 75: 'yellow', '76': 'white', 77: 'green', 78: 'red', 79: 'white',
+  80: 'purple', 81: 'green', 82: 'white', 83: 'red', 84: 'yellow',
+  85: 'purple', 86: 'white', 87: 'red', 88: 'red', 89: 'blue',
+  90: 'white', 91: 'purple', 92:'green',93: 'purple', 94: 'yellow', 95: 'blue',
+  96: 'purple', 97: 'yellow', 98: 'green', 99: 'green', 100: 'yellow',
+  101: 'blue', 102: 'red', 103: 'white', 104: 'blue', 105: 'black',
+  'G': 'black'}; // unchanged
+
+  const players = [
+    { id: 1, name: "玩家1", x: undefined, y: undefined, cube: null, ready: false, banCount: 0, isBanished: false },
+    { id: 2, name: "玩家2", x: undefined, y: undefined, cube: null, ready: false, banCount: 0, isBanished: false },
+    { id: 3, name: "玩家3", x: undefined, y: undefined, cube: null, ready: false, banCount: 0, isBanished: false },
+    { id: 4, name: "玩家4", x: undefined, y: undefined, cube: null, ready: false, banCount: 0, isBanished: false },
+  ];
+
+    let currentPlayerIdx = 0;
+
+  function createCube(topColor, facing = "front") {
+    const baseCube = {
+      top: topColor,
+      bottom: "white",
+      front: "blue",
+      back: "yellow",
+      left: "red",
+      right: "green",
+      facing: facing
+    };
+    return baseCube;
+  }
+
+
+    function findPositionByNumber(n) {
+      for (let y = 0; y < boardData.length; y++) {
+        for (let x = 0; x < boardData[y].length; x++) {
+          if (boardData[y][x] === n) return { x, y };
+        }
+      }
+      return null;
+    }
+
+    function allPlayersReady() {
+      return players.every(p => p.ready);
+    }
+    function setPlayerStart() {
+      const playerIdx = parseInt(document.getElementById("playerSelect").value);
+      const startNumber = parseInt(document.getElementById("startNumber").value);
+      const topColor = document.getElementById("startTop").value.toLowerCase();
+
+      const facing = prompt("請輸入你的臉朝向（front / back / left / right）：").toLowerCase();
+      const validColors = ["blue", "red", "green", "yellow", "purple", "white"];
+      const validFacings = ["front", "back", "left", "right"];
+
+      if (!validColors.includes(topColor)) {
+        alert("無效頂面顏色！");
+        return;
+      }
+
+      if (!validFacings.includes(facing)) {
+        alert("無效臉朝向！");
+        return;
+      }
+
+      const pos = findPositionByNumber(startNumber);
+      if (!pos) {
+        alert("無效格子號碼");
+        return;
+      }
+
+      const cellColor = colorMap[startNumber];
+      if (cellColor !== "gray") {
+        alert("只能從灰色格子起始");
+        return;
+      }
+
+      const player = players[playerIdx];
+      player.x = pos.x;
+      player.y = pos.y;
+      player.cube = createCube(topColor, facing);
+      player.ready = true;
+      drawBoard();
+
+      if (allPlayersReady()) {
+        currentPlayerIdx = 0;
+        updateTurnInfo();
+        alert("所有玩家已準備完成，輪到「" + players[currentPlayerIdx].name + "」開始移動。");
+      }
+      console.log("目前玩家準備狀態：", players.map(p => p.ready));
+
+    }
+
+
+    function rotateCube(cube, dir) {
+      const { top, bottom, left, right, front, back, facing } = cube;
+      let newCube = { ...cube };
+
+      switch (dir) {
+        case "up":
+          newCube.top = front;
+          newCube.front = bottom;
+          newCube.bottom = back;
+          newCube.back = top;
+          break;
+        case "down":
+          newCube.top = back;
+          newCube.back = bottom;
+          newCube.bottom = front;
+          newCube.front = top;
+          break;
+        case "left":
+          newCube.top = right;
+          newCube.right = bottom;
+          newCube.bottom = left;
+          newCube.left = top;
+          break;
+        case "right":
+          newCube.top = left;
+          newCube.left = bottom;
+          newCube.bottom = right;
+          newCube.right = top;
+          break;
+      }
+
+      return newCube;
+    }
+
+
+    function checkRule1(player) {
+      const posColor = colorMap[boardData[player.y][player.x]];
+      if (player.cube.top === "white" || posColor === "white") {
+        player.banCount++;
+        player.isBanished = true;
+        alert(`${player.name} 因為頂面或格子為白色，被放逐！累積 ${player.banCount} 枚放逐標記。`);
+
+        let grayChoices = [];
+        for (let y = 0; y < 17; y++) {
+          for (let x = 0; x < 17; x++) {
+            const num = boardData[y][x];
+            if (num && colorMap[num] === "gray") {
+              grayChoices.push({ x, y, num });
+            }
+          }
+        }
+
+        if (grayChoices.length > 0) {
+          const grayStr = grayChoices.map(c => `格子 ${c.num} (${c.x},${c.y})`).join("");
+          const selectedNum = prompt(`${player.name} 被放逐！請輸入你想返回的灰色格子編號：
+    ${grayStr}`);
+          const chosen = grayChoices.find(c => c.num == selectedNum);
+
+          if (chosen) {
+            const topColor = prompt("請輸入新的頂面顏色（英文：blue, red, green, yellow, purple, white）");
+            const validColors = ["blue", "red", "green", "yellow", "purple", "white"];
+          if (!validColors.includes(topColor)) {
+            alert("輸入錯誤，請輸入有效的顏色（blue, red, green, yellow, purple, white）");
+            return;
+          }
+          player.x = chosen.x;
+          player.y = chosen.y;
+          player.cube = createCube(topColor);
+          player.justBanished = true;
+          player.isBanished = false;
+          alert(`${player.name} 返回灰色格 ${selectedNum}，新頂面顏色為 ${topColor}`);
+          drawBoard();
+
+          } else {
+            alert("輸入無效，未更換位置。");
+          }
+        }
+      }
+    }
+
+
+    function checkRule4And5(player) {
+  const x = player.x;
+  const y = player.y;
+  const myColor = player.cube.top;
+  const boardColors = [];
+
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx >= 0 && nx < 17 && ny >= 0 && ny < 17) {
+        const num = boardData[ny][nx];
+        if (num !== null && colorMap[num]) {
+          boardColors.push(colorMap[num]);
+        }
+      }
+    }
+  }
+
+  // 不含自己頂面顏色的情況下，才需要換色
+  if (!boardColors.includes(myColor)) {
+    const possible = Array.from(new Set(boardColors)).filter(color => color !== myColor && color !== "gray");
+    if (possible.length > 0) {
+      const colorNameMap = {
+        blue: '藍', red: '紅', green: '綠', yellow: '黃', purple: '紫', white: '白'
+      };
+      let promptStr = `${player.name} 九宮格內無與頂面相同的棋盤顏色，請輸入新的頂面顏色（英文）：
+`;
+      promptStr += possible.map(c => `- ${colorNameMap[c] || c} (${c})`).join("");
+      const choice = prompt(promptStr);
+      if (choice && possible.includes(choice.toLowerCase())) {
+        player.cube.top = choice.toLowerCase();
+        alert(`${player.name} 頂面顏色更換為 ${choice}`);
+      } else {
+        alert("輸入錯誤，維持原頂面");
+      }
+    }
+  }
+
+}
+
+function checkRule6(player) {
+  const x = player.x;
+  const y = player.y;
+  const color = player.cube.top;
+  let count = 0;
+
+  // 檢查周圍 3x3 格子中相同顏色的數量
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx >= 0 && nx < 17 && ny >= 0 && ny < 17) {
+        if (dx === 0 && dy === 0) continue; // ✅ 不包含自己所在格
+        const num = boardData[ny][nx];
+        if (num !== null && colorMap[num] === color) {
+          count++;
+        }
+      }
+    }
+  }
+
+  // 包含自己的頂面顏色，所以 count+1 >= 3
+  if (count + 1 >= 3) {
+    const candidateList = players.filter(p => p !== player);
+    if (candidateList.length === 0) return;
+
+    const nameList = candidateList.map((p, i) => `${i + 1}: ${p.name}`).join("\n");
+    const choiceIdx = prompt(`${player.name} 觸發第六條規則：請選擇一位要強制移動的玩家：\n${nameList}`);
+    const idx = parseInt(choiceIdx);
+    const target = candidateList[idx - 1];
+    if (!target) {
+      alert("輸入錯誤，未選擇任何玩家");
+      return;
+    }
+
+    const dirInput = prompt("請輸入要移動的方向（上: up, 下: down, 左: left, 右: right）：");
+    const dirMap = {
+      up: { dx: 0, dy: -1 },
+      down: { dx: 0, dy: 1 },
+      left: { dx: -1, dy: 0 },
+      right: { dx: 1, dy: 0 }
+    };
+    const dir = dirMap[dirInput];
+    if (!dir) {
+      alert("輸入方向錯誤，未移動");
+      return;
+    }
+
+    const nx = target.x + dir.dx;
+    const ny = target.y + dir.dy;
+    if (
+      nx >= 0 && nx < 17 && ny >= 0 && ny < 17 &&
+      boardData[ny][nx] !== null &&
+      !players.some(p => p.x === nx && p.y === ny)
+    ) {
+      target.x = nx;
+      target.y = ny;
+      target.cube = rotateCube(target.cube, dirInput);
+      alert(`${player.name} 強制移動 ${target.name} 向 ${dirInput} 至格子 ${boardData[ny][nx]}`);
+      checkRule1(target);
+    } else {
+      alert("該方向無法移動或格子被佔用");
+    }
+  }
+}
+
+
+function move(dir) {
+  const player = players[currentPlayerIdx];
+  if (!allPlayersReady()) {
+    alert("所有玩家尚未設定起始位置，請先完成設定。");
+    return;
+  }
+
+
+  if (player.x === undefined || player.y === undefined) return;
+
+  const dx = dir === 'left' ? -1 : dir === 'right' ? 1 : 0;
+  const dy = dir === 'up' ? -1 : dir === 'down' ? 1 : 0;
+  const newX = player.x + dx;
+  const newY = player.y + dy;
+
+  if (newX < 0 || newX > 16 || newY < 0 || newY > 16 || boardData[newY][newX] === null) return;
+
+  // 檢查是否有其他玩家在目標格
+  const pushedPlayer = players.find(p => p.x === newX && p.y === newY);
+  if (pushedPlayer) {
+    const pushX = newX + dx;
+    const pushY = newY + dy;
+
+    if (
+      pushX < 0 || pushX > 16 ||
+      pushY < 0 || pushY > 16 ||
+      boardData[pushY][pushX] === null ||
+      players.some(p => p.x === pushX && p.y === pushY)
+    ) {
+      alert("無法推開其他玩家，移動失敗。");
+      return;
+    }
+
+    pushedPlayer.x = pushX;
+    pushedPlayer.y = pushY;
+    alert(`${pushedPlayer.name} 被 ${player.name} 推到了格子 ${boardData[pushY][pushX]}`);
+
+    // 第三條規則：推開不觸發其他規則，但仍檢查是否放逐
+    checkRule1(pushedPlayer);
+  }
+
+  const nextNum = boardData[newY][newX];
+  const cellColor = colorMap[nextNum];
+  const newCube = rotateCube(player.cube, dir);
+
+
+  player.x = newX;
+  player.y = newY;
+  player.cube = newCube;
+
+  checkRule1(player);
+
+  // 🛡️ 放逐回來的那一輪不檢查規則4/5
+  if (player.justBanished) {
+    player.justBanished = false; // 只略過這一回合
+  } else {
+    checkRule4And5(player);
+  }
+
+  checkRule6(player);
+
+
+  currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
+  updateTurnInfo();
+  drawBoard();
+    }
+
+    function updateTurnInfo() {
+      document.getElementById("turnInfo").textContent = "輪到「" + players[currentPlayerIdx].name + "」移動。";
+    }
+
+    function drawBoard() {
+      const board = document.getElementById("board");
+      board.innerHTML = "";
+      for (let y = 0; y < 17; y++) {
+        for (let x = 0; x < 17; x++) {
+          const val = boardData[y][x];
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          if (val !== null && val !== undefined) {
+            cell.textContent = String(val);
+
+            const color = colorMap[val];
+            if (typeof color === "string") {
+              cell.classList.add(color);
+            } else {
+              cell.classList.add("gray");
+            }
+
+            players.forEach(p => {
+              if (p.x === x && p.y === y) {
+                const div = document.createElement("div");
+                div.className = 'playerCube';
+                div.innerHTML = `${p.name}<br>${p.cube.top}`;
+                cell.appendChild(div);
+              }
+            });
+          } else {
+            cell.classList.add('empty');
+          }
+          board.appendChild(cell);
+        }
+      }
+    }
+
+    function initSelectors() {
+      const sel = document.getElementById("playerSelect");
+      players.forEach((p, i) => {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = p.name;
+        sel.appendChild(opt);
+      });
+    }
+
+    initSelectors();
+    drawBoard();
+
+  </script>
+</body>
+</html>
