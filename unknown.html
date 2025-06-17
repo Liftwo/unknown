@@ -346,28 +346,35 @@
         }
 
         if (chosen) {
-          const topColor = prompt("請輸入新的頂面顏色（英文：blue, red, green, yellow, purple, white）");
+          // 顏色輸入直到正確
+          let topColor = "";
           const validColors = ["blue", "red", "green", "yellow", "purple", "white"];
-          if (validColors.includes(topColor)) {
-            const facing = prompt("請輸入頂面朝向（front, back, left, right）");
-            const validFacings = ["front", "back", "left", "right"];
-            if (validFacings.includes(facing)) {
-              player.x = chosen.x;
-              player.y = chosen.y;
-              player.cube = createCube(topColor);
-              player.justBanished = true;
-              player.isBanished = false;
-              alert(`${player.name} 返回灰色格 ${chosen.num}，頂面為 ${topColor}，朝向為 ${facing}`);
-              currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
-              updateTurnInfo();
-            } else {
-              alert("輸入朝向錯誤，未更換方塊");
-            }
-          } else {
-            alert("輸入錯誤，頂面顏色未更換。維持原設定。");
+          while (!validColors.includes(topColor)) {
+          topColor = prompt("請輸入新的頂面顏色（英文：blue, red, green, yellow, purple, white）")?.toLowerCase();
+          if (!validColors.includes(topColor)) {
+          alert("輸入錯誤，請重新輸入有效顏色。");
+          }
           }
 
-        }
+          // 方向輸入直到正確
+          let facing = "";
+          const validFacing = ["front", "back", "left", "right"];
+          while (!validFacing.includes(facing)) {
+          facing = prompt("請輸入你的臉朝向（front/back/left/right）")?.toLowerCase();
+          if (!validFacing.includes(facing)) {
+          alert("輸入錯誤，請重新輸入方向。");
+          }
+          }
+
+          player.x = chosen.x;
+          player.y = chosen.y;
+          player.cube = createCube(topColor, facing);
+          player.justBanished = true;
+          player.isBanished = false;
+          alert(`${player.name} 返回格子 ${chosen.num}，新頂面為 ${topColor}，朝向 ${facing}`);
+          }
+
+
       }
     }
   }
@@ -398,15 +405,25 @@
           const colorNameMap = {
             blue: '藍', red: '紅', green: '綠', yellow: '黃', purple: '紫', white: '白'
           };
-          let promptStr = `${player.name} 九宮格內無與頂面相同的棋盤顏色，請輸入新的頂面顏色（英文）：
-    `;
-          promptStr += possible.map(c => `- ${colorNameMap[c] || c} (${c})`).join("");
-          const choice = prompt(promptStr);
-          const validFacings = ["front", "back", "left", "right"];
-          if (choice && possible.includes(choice.toLowerCase())) {
-            const topColor = choice.toLowerCase();
-            const facing = prompt("請輸入新的頂面朝向（front, back, left, right）");
-            if (validFacings.includes(facing)) {
+
+              let newColor = "";
+              while (!possible.includes(newColor)) {
+                const promptStr = `${player.name} 的九宮格內無與頂面同色的格子。\n請輸入新的頂面顏色（只能從下列選擇）：\n` +
+                  possible.map(c => `- ${colorNameMap[c] || c} (${c})`).join("\n");
+                newColor = prompt(promptStr)?.toLowerCase();
+                if (!possible.includes(newColor)) {
+                  alert("輸入錯誤，請重新輸入有效顏色");
+                }
+              }
+
+              let newFacing = "";
+              const validFacings = ["front", "back", "left", "right"];
+              while (!validFacings.includes(newFacing)) {
+                newFacing = prompt("請輸入你的臉朝向（front/back/left/right）")?.toLowerCase();
+                if (!validFacings.includes(newFacing)) {
+                  alert("輸入錯誤，請重新輸入方向");
+                }
+              }
               player.cube = createCube(topColor, facing);
               alert(`${player.name} 頂面顏色更換為 ${topColor}，朝向為 ${facing}`);
               checkRule6(player);
@@ -422,8 +439,7 @@
             alert("輸入錯誤，維持原頂面");
           }
         }
-      }
-    }
+
 function checkRule6(player) {
   const x = player.x;
   const y = player.y;
@@ -473,8 +489,14 @@ function checkRule6(player) {
     }
   }
 
-
-    const dirInput = prompt("請輸入要移動的方向（上: up, 下: down, 左: left, 右: right）：");
+    let dirInput = "";
+    const validDirs = ["up", "down", "left", "right"];
+    while (!validDirs.includes(dirInput)) {
+      dirInput = prompt("請輸入要移動的方向（up/down/left/right）：")?.toLowerCase();
+      if (!validDirs.includes(dirInput)) {
+        alert("輸入錯誤，請重新輸入方向");
+      }
+    }
     const dirMap = {
       up: { dx: 0, dy: -1 },
       down: { dx: 0, dy: 1 },
@@ -678,12 +700,7 @@ function move(dir) {
 
   checkRule6(player); // 如果沒觸發 Rule 8，再檢查 Rule 6
 
-  if (player.extraMove) {
-    player.extraMove = false;
-    alert(`${player.name} 可再進行一次移動（Rule 8）`);
-    drawBoard();
-    return;
-  }
+
 
   // 🔁 結束前處理 deferredRules
   players.forEach(p => {
