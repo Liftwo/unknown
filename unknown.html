@@ -104,53 +104,18 @@
 
 
   <script>
-    const boardData = [      [null, null, null, null, null, null, null, null, 4, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, null, null, null, 20, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, null, null, 14, 24, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, null, null, 34, 35, 36, 8, null, null, null, null, null, null],
-      [null, null, null, null, null, 16, 52, 53, 54, 55, 56, null, null, null, null, null, null],
-      [null, null, null, null, null, 75, 76, 77, 78, 79, 80, 57, 9, null, null, null, null],
-      [null, null, null, 11, 51, 74, 93, 94, 95, 96, 81, 58, 37, null, null, null, null],
-      [null, null, null, 33, 50, 73, 92, 103, 104, 97, 82, 59, 38, 25, 10, null, null],
-      [3, 19, 23, 32, 49, 72, 91, 102, "G", 98, 83, 60, 39, 26, 21, 17, 2],
-      [null, null,6, 31, 48, 71, 90, 101, 100, 99, 84, 61, 40, 27, null, null, null],
-      [null, null, null,null, 47, 70, 89, 88, 87, 86, 85, 62, 41, 5, null, null, null],
-      [null, null, null, null,12, 69, 68, 67, 66, 65, 64, 63, null, null, null, null, null],
-      [null, null, null, null, null, 46, 45, 44, 43, 42, 7, null, null, null, null, null, null],
-      [null, null, null, null, null, 15, 30, 29, 28, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, null, null, 22, 13, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, null, null, 18, null, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, null, null, 1, null, null, null, null, null, null, null, null, null]];
-    const colorMap = {  1: 'gray', 2: 'gray', 3: 'gray', 4: 'gray', 5: 'gray',
-  6: 'gray', 7: 'gray', 8: 'gray', 9: 'gray', 10: 'gray',
-  11: 'gray', 12: 'gray', 13: 'gray', 14: 'gray', 15: 'gray',
-  16: 'gray', 17: 'white', 18: 'yellow', 19: 'blue', 20: 'green',
-  21: 'yellow', 22: 'green', 23: 'red', 24: 'blue', 25: 'red',
-  26: 'blue', 27: 'red', 28: 'purple', 29: 'white', 30: 'purple',
-  31: 'purple', 32: 'blue', 33: 'white', 34: 'red', 35: 'green',
-  36: 'white', 37: 'purple', 38: 'yellow',39: 'white', 40: 'blue', 41: 'green',
-  42: 'white', 43: 'red', 44: 'blue', 45: 'blue', 46: 'yellow',
-  47: 'white', 48: 'yellow', 49: 'green', 50: 'blue', 51: 'purple',
-  52: 'yellow', 53: 'purple', 54: 'yellow', 55: 'red', 56: 'blue',
-  57: 'white', 58: 'green', 59: 'blue', 60: 'green', 61: 'white',
-  62: 'white', 63: 'purple', 64: 'green', 65: 'yellow', 66: 'purple',67: 'white',68: 'green',
-  69: 'red', 70: 'purple', 71: 'red', 72: 'white', 73: 'yellow',
-  74: 'red', 75: 'yellow', '76': 'white', 77: 'green', 78: 'red', 79: 'white',
-  80: 'purple', 81: 'green', 82: 'white', 83: 'red', 84: 'yellow',
-  85: 'purple', 86: 'white', 87: 'red', 88: 'red', 89: 'blue',
-  90: 'white', 91: 'purple', 92:'green',93: 'purple', 94: 'yellow', 95: 'blue',
-  96: 'purple', 97: 'yellow', 98: 'green', 99: 'green', 100: 'yellow',
-  101: 'blue', 102: 'red', 103: 'white', 104: 'blue', 105: 'black',
-  'G': 'black'}; // unchanged
+    const boardData = [...];
+    const colorMap = {...}; // unchanged
 
-  const players = [
-    { id: 1, name: "玩家1", x: undefined, y: undefined, cube: null, ready: false, banCount: 0, isBanished: false, extraMove: false, deferredRules: []},
-    { id: 2, name: "玩家2", x: undefined, y: undefined, cube: null, ready: false, banCount: 0, isBanished: false, extraMove: false, deferredRules: []},
-    { id: 3, name: "玩家3", x: undefined, y: undefined, cube: null, ready: false, banCount: 0, isBanished: false, extraMove: false, deferredRules: []},
-    { id: 4, name: "玩家4", x: undefined, y: undefined, cube: null, ready: false, banCount: 0, isBanished: false, extraMove: false, deferredRules: []},
-  ];
+    const players = [
+      { id: 1, name: "玩家1", x: undefined, y: undefined, cube: null, ready: false, banCount: 0, isBanished: false, extraMove: false, deferredRules: [], type: 'human'},
+      { id: 2, name: "玩家2", x: undefined, y: undefined, cube: null, ready: false, banCount: 0, isBanished: false, extraMove: false, deferredRules: [], type: 'ai'},
+      { id: 3, name: "玩家3", x: undefined, y: undefined, cube: null, ready: false, banCount: 0, isBanished: false, extraMove: false, deferredRules: [], type: 'ai'},
+      { id: 4, name: "玩家4", x: undefined, y: undefined, cube: null, ready: false, banCount: 0, isBanished: false, extraMove: false, deferredRules: [], type: 'ai'},
+    ];
 
     let currentPlayerIdx = 0;
+
 
   function createCube(topColor, facing = "front") {
     const cubeMap = {
@@ -230,11 +195,48 @@
     function allPlayersReady() {
       return players.every(p => p.ready);
     }
+
+    async function autoSetAIStart(playerIdx) {
+      const player = players[playerIdx];
+      const grayChoices = [];
+      for (let y = 0; y < 17; y++) {
+        for (let x = 0; x < 17; x++) {
+          const num = boardData[y][x];
+          if (num && colorMap[num] === "gray") {
+            grayChoices.push({ x, y, num });
+          }
+        }
+      }
+
+      const pos = grayChoices[Math.floor(Math.random() * grayChoices.length)];
+      const topColors = ["blue", "red", "green", "yellow", "purple", "white"];
+      const facings = ["front", "back", "left", "right"];
+      const topColor = topColors[Math.floor(Math.random() * topColors.length)];
+      const facing = facings[Math.floor(Math.random() * facings.length)];
+
+      const playerObj = players[playerIdx];
+      playerObj.x = pos.x;
+      playerObj.y = pos.y;
+      playerObj.cube = createCube(topColor, facing);
+      playerObj.ready = true;
+      playerObj.topColor = topColor
+      drawBoard();
+
+      if (allPlayersReady()) {
+        currentPlayerIdx = 0;
+        updateTurnInfo();
+        alert("所有玩家已準備完成，輪到「" + players[currentPlayerIdx].name + "」開始移動。");
+        if (players[currentPlayerIdx].type === 'ai') {
+          makeAIMove(players[currentPlayerIdx]);
+        }
+      }
+    }
     function setPlayerStart() {
-      const playerIdx = parseInt(document.getElementById("playerSelect").value);
+      const playerIdx = 0; // 固定玩家1為真人
+      const player = players[playerIdx];
+
       const startNumber = parseInt(document.getElementById("startNumber").value);
       const topColor = document.getElementById("startTop").value.toLowerCase();
-
       const facing = prompt("請輸入你的臉朝向（front / back / left / right）：").toLowerCase();
       const validColors = ["blue", "red", "green", "yellow", "purple", "white"];
       const validFacings = ["front", "back", "left", "right"];
@@ -243,7 +245,6 @@
         alert("無效頂面顏色！");
         return;
       }
-
       if (!validFacings.includes(facing)) {
         alert("無效臉朝向！");
         return;
@@ -254,28 +255,107 @@
         alert("無效格子號碼");
         return;
       }
-
       const cellColor = colorMap[startNumber];
       if (cellColor !== "gray") {
         alert("只能從灰色格子起始");
         return;
       }
 
-      const player = players[playerIdx];
       player.x = pos.x;
       player.y = pos.y;
       player.cube = createCube(topColor, facing);
       player.ready = true;
+      player.topColor = topColor;
       drawBoard();
 
-      if (allPlayersReady()) {
-        currentPlayerIdx = 0;
-        updateTurnInfo();
-        alert("所有玩家已準備完成，輪到「" + players[currentPlayerIdx].name + "」開始移動。");
-      }
-      console.log("目前玩家準備狀態：", players.map(p => p.ready));
-
+      // 自動讓剩下的 AI 玩家設定位置
+      autoSetAIStart(1);
+      autoSetAIStart(2);
+      autoSetAIStart(3);
     }
+
+    async function makeAIMove(player) {
+      if (player.type === 'ai') {
+        const boardState = {
+          board: boardData,
+          players: players.map(p   => ({
+            name: p.name,
+            x: p.x,
+            y: p.y,
+            cube: p.cube,
+            type: p.type
+          })),
+          colorMap: colorMap
+        };
+        console.log(boardState)
+        const moveDir = await getAIMove(player, boardState);
+
+        setTimeout(() => {
+          move(moveDir);  // ✅ 改為 moveDir，而不是 move(move)
+        }, 1000);
+      }
+    }
+
+
+    // ✅ 修改處 3：AI 回傳方向時確保格式正確
+    async function getAIMove(player, boardState) {
+      try {
+        const gameContext = {
+          currentPlayer: player,
+          board: boardData,
+          players: players,
+          colorMap: colorMap
+        };
+
+        const prompt = `You are playing Unknown game as player ${player.name}.
+        Current board state: ${JSON.stringify(boardState)}
+
+        Please consider the following rules:
+        1. Moving to white squares results in banishment
+        2. Prefer moving to squares that match your top color (${player.cube.top})
+        3. Consider strategic moves that could trigger Rule 6 (forcing other players to move)
+        4. Consider moves that could trigger Rule 8 (getting an extra move)
+
+        You can move in these directions: up, down, left, right
+
+        What is your recommended move? Please respond with just one word: up/down/left/right`;
+        const OPENAI_API_KEY = 'sk-Mjd7hcdyCxDktN6XGyapqfj12eCKOmsYvVpgcz1psY0R8cMn'
+        const OPENAI_MODEL = 'deepseek-r1';
+
+        const response = await fetch('https://api.chatanywhere.tech/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${OPENAI_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: OPENAI_MODEL,
+            messages: [{ role: 'system', content: prompt }]
+          })
+        });
+        console.log(`[AI] 發送請求給 OpenAI：`, prompt);
+
+        const data = await response.json();
+        const fullText = data.choices[0].message.content.trim().toLowerCase();
+        console.log("AI回復的資料:", fullText);
+
+        // 從文字中擷取方向
+        const match = fullText.match(/\b(up|down|left|right)\b/);
+        const move = match ? match[1] : null;
+
+        if (!move) {
+          console.log('未能從回應中擷取方向，使用預設策略');
+          return 'down'; // fallback
+        }
+
+        return move;
+
+      } catch (error) {
+        console.error('Error getting AI move:', error);
+        return 'down';
+      }
+    }
+
 
 
     function rotateCube(cube, dir) {
@@ -379,66 +459,65 @@
     }
   }
 
-    function checkRule4And5(player) {
-      const x = player.x;
-      const y = player.y;
-      const myColor = player.cube.top;
-      const boardColors = [];
+  function checkRule4And5(player) {
+    const x = player.x;
+    const y = player.y;
+    const myColor = player.cube.top;
+    const boardColors = [];
 
-      for (let dy = -1; dy <= 1; dy++) {
-        for (let dx = -1; dx <= 1; dx++) {
-          const nx = x + dx;
-          const ny = y + dy;
-          if (nx >= 0 && nx < 17 && ny >= 0 && ny < 17) {
-            const num = boardData[ny][nx];
-            if (num !== null && colorMap[num]) {
-              boardColors.push(colorMap[num]);
-            }
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (nx >= 0 && nx < 17 && ny >= 0 && ny < 17) {
+          const num = boardData[ny][nx];
+          if (num !== null && colorMap[num]) {
+            boardColors.push(colorMap[num]);
           }
         }
       }
+    }
 
-      // 不含自己頂面顏色的情況下，才需要換色
-      if (!boardColors.includes(myColor)) {
-        const possible = Array.from(new Set(boardColors)).filter(color => color !== myColor && color !== "gray");
-        if (possible.length > 0) {
-          const colorNameMap = {
-            blue: '藍', red: '紅', green: '綠', yellow: '黃', purple: '紫', white: '白'
-          };
+    // 不含自己頂面顏色的情況下，才需要換色
+    if (!boardColors.includes(myColor)) {
+      const possible = Array.from(new Set(boardColors)).filter(color => color !== myColor && color !== "gray");
+      if (possible.length > 0) {
+        const colorNameMap = {
+          blue: '藍', red: '紅', green: '綠', yellow: '黃', purple: '紫', white: '白'
+        };
 
-              let newColor = "";
-              while (!possible.includes(newColor)) {
-                const promptStr = `${player.name} 的九宮格內無與頂面同色的格子。\n請輸入新的頂面顏色（只能從下列選擇）：\n` +
-                  possible.map(c => `- ${colorNameMap[c] || c} (${c})`).join("\n");
-                newColor = prompt(promptStr)?.toLowerCase();
-                if (!possible.includes(newColor)) {
-                  alert("輸入錯誤，請重新輸入有效顏色");
-                }
-              }
-
-              let newFacing = "";
-              const validFacings = ["front", "back", "left", "right"];
-              while (!validFacings.includes(newFacing)) {
-                newFacing = prompt("請輸入你的臉朝向（front/back/left/right）")?.toLowerCase();
-                if (!validFacings.includes(newFacing)) {
-                  alert("輸入錯誤，請重新輸入方向");
-                }
-              }
-              player.cube = createCube(topColor, facing);
-              alert(`${player.name} 頂面顏色更換為 ${topColor}，朝向為 ${facing}`);
-              checkRule6(player);
-              if (checkRule8(player)) {
-                alert(`${player.name} 符合第八條規則，可額外進行一次移動！`);
-                drawBoard();
-                return; // 不換人，讓玩家立即再移動一次
-              }
-            } else {
-              alert("朝向輸入錯誤，維持原設定");
-            }
-          } else {
-            alert("輸入錯誤，維持原頂面");
+        let newColor = "";
+        while (!possible.includes(newColor)) {
+          const promptStr = `${player.name} 的九宮格內無與頂面同色的格子。\n請輸入新的頂面顏色（只能從下列選擇）：\n` +
+            possible.map(c => `- ${colorNameMap[c] || c} (${c})`).join("\n");
+          newColor = prompt(promptStr)?.toLowerCase();
+          if (!possible.includes(newColor)) {
+            alert("輸入錯誤，請重新輸入有效顏色");
           }
         }
+
+        let newFacing = "";
+        const validFacings = ["front", "back", "left", "right"];
+        while (!validFacings.includes(newFacing)) {
+          newFacing = prompt("請輸入你的臉朝向（front/back/left/right）")?.toLowerCase();
+          if (!validFacings.includes(newFacing)) {
+            alert("輸入錯誤，請重新輸入方向");
+          }
+        }
+
+        player.cube = createCube(newColor, newFacing);
+        alert(`${player.name} 頂面顏色更換為 ${newColor}，朝向為 ${newFacing}`);
+
+        checkRule6(player);
+        if (checkRule8(player)) {
+          alert(`${player.name} 符合第八條規則，可額外進行一次移動！`);
+          drawBoard();
+          return;
+        }
+      }
+    }
+  }
+
 
 function checkRule6(player) {
   const x = player.x;
@@ -715,6 +794,9 @@ function move(dir) {
   currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
   updateTurnInfo();
   drawBoard();
+  if (players[currentPlayerIdx].type === 'ai') {
+    makeAIMove(players[currentPlayerIdx]);
+  }
   console.log(`[MOVE END] currentPlayer = ${players[currentPlayerIdx].name}`);
 }
 
