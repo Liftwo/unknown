@@ -275,7 +275,7 @@
     }
 
     async function askOpenAI(promptText) {
-      const OPENAI_API_KEY = 'sk-Mjd7hcdyCxDktN6XGyapqfj12eCKOmsYvVpgcz1psY0R8cMn'
+      const OPENAI_API_KEY = ''
       const OPENAI_MODEL = 'gpt-4.1-mini';
       try {
         const response = await fetch('https://api.chatanywhere.tech/v1/chat/completions', {
@@ -316,7 +316,7 @@
 
         setTimeout(() => {
           move(moveDir);  // ✅ 改為 moveDir，而不是 move(move)
-        }, 10000);
+        }, 5000);
       }
     }
 
@@ -680,13 +680,18 @@ function checkRule6(player, onExtraMove) {
     alert(`${player.name} 強制移動 ${target.name} 向 ${dirInput} 至格子 ${boardData[ny][nx]}`);
     if (checkRule8(target)) {
       alert(`${target.name} 符合第八條規則，可額外移動一次！`);
-      if (target.type === 'ai') {
-        makeAIMove(target);
-      } else {
-        currentPlayerIdx = players.indexOf(target);
-        updateTurnInfo();
+
+      if (target.extraMove) {
+        target.extraMove = false;
+        if (target.type === 'ai') {
+          makeAIMove(target);
+        } else {
+          currentPlayerIdx = players.indexOf(target);
+          updateTurnInfo();
+        }
       }
-      if (onExtraMove) onExtraMove(); // ✅ 通知不要換人
+
+      if (onExtraMove) onExtraMove(); // 通知不要換人
       return;
     }
 
@@ -776,7 +781,7 @@ function checkRule8(player) {
           checkRule1(target); // 放逐仍立即處理
         }
       }
-
+      player.extraMove = true;
       return true;
     }
   }
@@ -786,8 +791,7 @@ function checkRule8(player) {
 
 
 
-function
-move(dir) {
+function move(dir) {
   let stopTurnAdvance = false;
   const player = players[currentPlayerIdx];
   console.log(`[MOVE START] ${player.name}, extraMove = ${player.extraMove}`);
@@ -863,7 +867,20 @@ move(dir) {
 
   if (checkRule8(player)) {
     drawBoard();  // 提前更新畫面
-    return;       // ✅ 提前 return，保留回合不換人
+    if (player.extraMove) {
+      player.extraMove = false; // 重置標記
+      alert(`${player.name} 觸發第八條規則，可進行額外移動！`);
+
+      if (player.type === 'ai') {
+        makeAIMove(player);
+      } else {
+        // 人類玩家保持當前回合，等待輸入
+        updateTurnInfo();
+      }
+      return; // 不換回合
+    }
+
+    return; // 沒有額外移動權則正常結束
   }
 
   checkRule6(player, () => { stopTurnAdvance = true; });
