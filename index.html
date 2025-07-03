@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>未知 Unknown 遊戲</title>
+  <style>
+        body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f5f5f5;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(17, 40px);
+      grid-template-rows: repeat(17, 40px);
+      gap: 2px;
+      margin-bottom: 1rem;
+    }
+    .cell {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #000;
+      border: 1px solid #ccc;
+      position: relative;
+    }
+    .cell.empty {
+      visibility: hidden;
+    }
+    .controls {
+      margin-bottom: 1rem;
+    }
+    .playerCube {
+      font-size: 10px;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      background: rgba(255,255,255,0.7);
+      padding: 1px;
+    }
+    #turnInfo {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .null { background-color: transparent; border: none; }
+    .gray { background-color: #ccc; }
+    .white { background-color: #fff; }
+    .red { background-color: #EE4B2B; }
+    .green { background-color: #6f6; }
+    .blue { background-color: #0096FF; }
+    .yellow { background-color: #ff6; }
+    .purple { background-color: #c6f; }
+    .pink { background-color: #f6c; }
+    .lightblue { background-color: #6ff; }
+    .orange { background-color: #fa3; }
+    .black { background-color: #000; color: #fff; }
+  </style>
+</head>
+<body>
+  <h1>未知 Unknown 遊戲</h1>
+
+  <div class="controls">
+    <label>起始格子號碼：</label>
+    <input type="number" id="startNumber" min="1" max="104" style="width: 60px;">
+    <label>頂面顏色：</label>
+    <select id="startTop">
+      <option value="blue">藍</option>
+      <option value="red">紅</option>
+      <option value="green">綠</option>
+      <option value="yellow">黃</option>
+      <option value="purple">紫</option>
+      <option value="white">白</option>
+    </select>
+    <button onclick="setPlayerStart()">設定</button>
+  </div>
+
+  <div>
+    <button onclick="move('up')">上</button>
+    <button onclick="move('down')">下</button>
+    <button onclick="move('left')">左</button>
+    <button onclick="move('right')">右</button>
+  </div>
+
+  <div id="cube-visuals" style="margin-top: 20px;"></div>
+  <div id="turnInfo"></div>
+  <div class="board" id="board"></div>
+
+  <!-- 🔽 載入模組 -->
+  <script src="game_logic.js"></script>
+  <script src="ai_module.js"></script>
+  <script src="game_flow_system.js"></script>
+</body>
+</html>
