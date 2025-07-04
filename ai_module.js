@@ -1,5 +1,5 @@
 async function askOpenAI(promptText) {
-  const OPENAI_API_KEY = 'sk-Mjd7hcdyCxDktN6XGyapqfj12eCKOmsYvVpgcz1psY0R8cMn';
+  const OPENAI_API_KEY = '';
   const OPENAI_MODEL = 'gpt-4.1-mini';
   // console.log("傳送的prompt",promptText)
   try {
