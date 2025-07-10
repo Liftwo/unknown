@@ -127,6 +127,89 @@ class GameFlowManager {
     });
   }
 
+
+  getTopColorAt(x, y) {
+  const player = players.find(p => p.x === x && p.y === y);
+  if (player?.cube?.top) {
+    return player.cube.top; // 玩家方塊頂面
+  }
+
+  const cell = boardData[y]?.[x];
+  return cell != null ? colorMap[cell] : null; // 該格子的顏色
+}
+
+
+  needsToChangeTopColor(player) {
+  const px = player.x, py = player.y;
+  const topColor = player.cube.top;
+
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const nx = px + dx, ny = py + dy;
+      if (!inBounds(nx, ny)) continue;
+
+      const color = this.getTopColorAt(nx, ny);
+      if (color === topColor) {
+        return false; // 有其他相同顏色，無需換色
+      }
+    }
+  }
+
+  return true; // 九宮格內（除自己）沒有其他同色
+}
+
+
+  getAvailableTopColorsInNineGrid(player) {
+  const px = player.x, py = player.y;
+  const colorSet = new Set();
+
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const nx = px + dx, ny = py + dy;
+      if (!inBounds(nx, ny)) continue;
+
+      const color = this.getTopColorAt(nx, ny);
+      if (color && color !== 'white' && color !== 'gray') {
+        colorSet.add(color);
+      }
+    }
+  }
+  const standingCellValue = boardData[py]?.[px];
+  const standingColor = standingCellValue != null ? colorMap[standingCellValue] : null;
+  if (standingColor) {
+  colorSet.add(standingColor);}
+
+  return Array.from(colorSet);
+  }
+
+  async forceChangeTopColor(player) {
+  const availableColors = this.getAvailableTopColorsInNineGrid(player);
+  const currentTop = player.cube.top;
+
+  const choices = availableColors.filter(c => c !== currentTop);
+  if (choices.length === 0) return;
+
+  if (player.type === 'ai') {
+    const newColor = choices[Math.floor(Math.random() * choices.length)];
+    const facings = ["front", "back", "left", "right"];
+    const newFacing = facings[Math.floor(Math.random() * facings.length)];
+    player.cube = createCube(newColor, newFacing);
+    console.log(`🤖 AI ${player.name} 強制換頂面為 ${newColor}，朝向 ${newFacing}`);
+  } else {
+    let newColor = null;
+    while (!newColor || !choices.includes(newColor)) {
+      newColor = prompt(`⚠️ ${player.name} 須更換頂面顏色。\n可選顏色：${choices.join(', ')}`).toLowerCase();
+    }
+    let newFacing = null;
+    while (!["front", "back", "left", "right"].includes(newFacing)) {
+      newFacing = prompt(`請輸入新的朝向（front/back/left/right）：`).toLowerCase();
+    }
+    player.cube = createCube(newColor, player.newfacing);
+    console.log(`👤 ${player.name} 換頂面為 ${newColor}，朝向 ${newFacing}`);
+  }
+}
+
+
   async handleNormalMove(action) {
   const { playerId, direction } = action;
   const player = players[playerId];
@@ -168,6 +251,17 @@ class GameFlowManager {
     this.handleTriggeredRules(player, rules);
   }
 
+  if (this.needsToChangeTopColor(player)) {
+
+  await this.forceChangeTopColor(player);
+
+  const newRules = this.checkTriggeredRules(player) ?? [];
+  if (newRules.length > 0) {
+    this.handleTriggeredRules(player, newRules);
+    return;
+  }
+}
+
   // 如果是額外移動，不管有沒有觸發規則都要結束回合
   if (wasExtraMove) {
     this.turnPhase = 'NORMAL';
@@ -190,7 +284,7 @@ class GameFlowManager {
   }
 }
 
-checkRule6Flexible(player) {
+  checkRule6Flexible(player) {
   const color = player.cube.top;
   const px = player.x;
   const py = player.y;
@@ -464,7 +558,17 @@ checkRule6Flexible(player) {
     this.handleTriggeredRules(target, rules);
     }
     else {
-  this.enqueueAction({ type: 'END_TURN' }); // ✅ ← 關鍵補這行
+      if (this.needsToChangeTopColor(target)) {
+        await this.forceChangeTopColor(target);
+
+        const rules = this.checkTriggeredRules(target) ?? [];
+        if (rules.length > 0) {
+          this.handleTriggeredRules(target, rules);
+          return;
+        }
+      }
+
+      this.enqueueAction({ type: 'END_TURN' });
 }
 }
 
@@ -481,6 +585,18 @@ checkRule6Flexible(player) {
     target.cube = rotateCube(target.cube, direction);
   }
   console.log('✅ 檢查被指定移動的玩家是否有觸發規則');
+
+  if (this.needsToChangeTopColor(target)) {
+  await this.forceChangeTopColor(target);
+
+
+  const triggered = this.checkTriggeredRules(target) ?? [];
+  if (triggered.length > 0) {
+    this.handleTriggeredRules(target, triggered);
+    return;
+  }
+  }
+
   const triggered = this.checkTriggeredRules(target) ?? [];
   if (triggered.length > 0) {
     this.handleTriggeredRules(target, triggered);
