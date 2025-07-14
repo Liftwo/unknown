@@ -62,7 +62,7 @@ class GameFlowManager {
   }
 
     async handleBanishPlayer(action) {
-    const player = players[action.playerId];
+    const player = players.find(p => p.id === action.playerId);
     console.log(`🚨 ${player.name} 被放逐，需要重新選擇起始位置`);
 
     if (player.type === 'ai') {
@@ -148,7 +148,16 @@ class GameFlowManager {
       const nx = px + dx, ny = py + dy;
       if (!inBounds(nx, ny)) continue;
 
-      const color = this.getTopColorAt(nx, ny);
+      let color;
+
+      // ⬇️ 如果是自己腳下的格子，用格子顏色（不是 cube.top）
+      if (nx === px && ny === py) {
+        const cell = boardData[py]?.[px];
+        color = cell != null ? colorMap[cell] : null;
+      } else {
+        color = this.getTopColorAt(nx, ny);
+      }
+      console.log('color:',color,'position:',boardData[ny][nx]);
       if (color === topColor) {
         return false; // 有其他相同顏色，無需換色
       }
@@ -551,7 +560,14 @@ class GameFlowManager {
     target.x = nx;
     target.y = ny;
     target.cube = rotateCube(target.cube, direction);
-    console.log('✅ 檢查被指定移動的玩家是否有觸發規則');
+    const standingCell = boardData[target.y]?.[target.x];
+    const groundColor = standingCell != null ? colorMap[standingCell] : null;
+    console.log(`✅ 檢查被指定移動的玩家:${target.id}是否有觸發規則`);
+    // ⛔ 立即先檢查是否該被放逐
+    if (target.cube.top === 'white' || groundColor === 'white') {
+      this.enqueueAction({ type: 'BANISH_PLAYER', playerId: target.id });
+      return;
+    }
     // this.enqueueAction({ type: 'END_TURN' })
     const rules = this.checkTriggeredRules(target) ?? [];
     if (rules.length > 0) {
@@ -585,6 +601,14 @@ class GameFlowManager {
     target.cube = rotateCube(target.cube, direction);
   }
   console.log('✅ 檢查被指定移動的玩家是否有觸發規則');
+  const standingCell = boardData[target.y]?.[target.x];
+  const groundColor = standingCell != null ? colorMap[standingCell] : null;
+  // ⛔ 立即先檢查是否該被放逐
+  if (target.cube.top === 'white' || groundColor === 'white') {
+    console.log('⛔ 該被指定移動的玩家已被放逐:',target.name, target.id);
+    this.enqueueAction({ type: 'BANISH_PLAYER', playerId: target.id });
+    return;
+  }
 
   if (this.needsToChangeTopColor(target)) {
   await this.forceChangeTopColor(target);
