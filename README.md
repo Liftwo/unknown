@@ -34,6 +34,7 @@ Each player controls a colored six-faced cube, navigating across a 104-tile boar
 - `game_flow_system.js`: Main game loop, turn system, and action queue
 - `game_logic.js`: Cube rotation, rule logic, and board state handling
 - `ai_module.js`: Basic AI decision logic (randomized or extendable)
+- `index.html1`
 
 ---
 
