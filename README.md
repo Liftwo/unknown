@@ -1,6 +1,6 @@
 > 📙 中文說明接在英文之後。
 
-# 🧩 UnKnown - Digital Board Game Implementation
+# 🧩 UnKnown - Digital Board Game
 
 A digital adaptation of the multiplayer strategy board game *UnKnown*, inspired by **The Devil's Plan 2**. This game supports both human and AI players, featuring dynamic cube movement and complex chain-rule interactions.
 
