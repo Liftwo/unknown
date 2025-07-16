@@ -34,7 +34,7 @@ Each player controls a colored six-faced cube, navigating across a 104-tile boar
 - `game_flow_system.js`: Main game loop, turn system, and action queue
 - `game_logic.js`: Cube rotation, rule logic, and board state handling
 - `ai_module.js`: Basic AI decision logic (randomized or extendable)
-- `index.html1`
+- `index.html`
 
 ---
 
@@ -51,7 +51,7 @@ Each player controls a colored six-faced cube, navigating across a 104-tile boar
 ## 🚀 How to Run
 
 ### 1. Launch a Local Server
-Use something like **VS Code Live Server**, or run via `python -m http.server` in your project folder.
+Simply place all files in the same folder.
 
 ### 2. Open `index.html`
 Use any browser to access the game UI.
@@ -129,7 +129,7 @@ Follow the instructions to pick your starting location, top color, and cube faci
 確保所有檔案已放入同一資料夾中（含 `index.html`、JS 檔案與 CSS）
 
 ### ✅ 2. 開啟 `index.html`
-可透過瀏覽器或 Live Server 開啟。
+透過瀏覽器開啟。
 
 ### ✅ 3. 遊戲開始
 依畫面指示選擇初始位置與方塊頂面、朝向後進行遊戲。
